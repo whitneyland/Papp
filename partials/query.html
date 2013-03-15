@@ -1,0 +1,280 @@
+<style>
+
+    .gridStyle {
+        border: 1px solid rgb(212,212,212);
+        width: 100%;
+        height: 300px;
+    }
+
+    .op_container {
+        text-align: center
+    }
+
+    .query .row_item {
+        vertical-align: middle;
+        margin-top: 0px;
+        margin-bottom: 0px;
+    }
+
+    .add_item {
+        margin-top: 0px;
+        margin-bottom: 3px;
+    }
+
+    .prop_name {
+    }
+
+    .prop_type {
+        margin-left: 30px;
+        color: gray;
+        font-style: italic;
+    }
+
+    .property_dropdown {
+        min-width: 300px
+    }
+
+    .narrow_col {
+        margin-left:10px;
+    }
+
+    .logic {
+        border-radius:5px;
+        background-color:#F8F8F8;
+        border:solid 1px #E0E0E0;
+        width: 50px;
+        height: 20px;
+        margin-top: 2px;
+        margin-bottom: 2px;
+        text-align: center;
+        font-weight: bold;
+        font-size: 14px;
+    }
+    .condition {
+        width: 615px;
+        height: 30px;
+        border-radius:5px;
+        margin-top: 4px;
+        padding-top: 5px;
+        padding-bottom: 3px;
+        padding-left: 10px;
+        background-color: #E8E8E8;
+        border:solid 1px #E0E0E0
+    }
+
+    .menu_item {
+        padding: 10px;
+    }
+
+    .menu_item:hover {
+        padding: 10px;
+        background-color: #e0e0e0;
+    }
+
+    .type {
+        color: gray;
+        font-style: italic;
+    }
+
+    .invalid {
+        color: gray;
+        font-style: italic;
+    }
+
+    .queryCode {
+        font-size: 10px;
+        font-style: italic;
+        word-wrap: break-word;
+        width:100%;
+        height:400px;
+    }
+
+    .outputFormat {
+        width:100%
+    }
+
+    .outputDesc {
+        font-size: 12px;
+        float: right;
+        text-align: right;
+        margin-top: 6px;
+    }
+
+    .indent {
+        margin-left:30px;
+    }
+
+    .query .ipad_only {
+        display: none;
+    }
+    .query .desk_only {
+        display: inline;
+    }
+
+    .or_group {
+        background-color: #e0e0e0;
+        border-radius:5px;
+        padding: 5px;
+    }
+
+    .node_in {
+        -webkit-animation-fill-mode: forwards;
+        -webkit-animation-duration: 0.5s;
+        -webkit-animation-name: node_in_keyframes;
+        -webkit-animation-iteration-count: 1;
+    }
+
+    @-webkit-keyframes node_in_keyframes {
+        0% { max-height: 0px; }
+        100% { max-height: 500px }
+    }
+
+    .node_out {
+        -webkit-animation-fill-mode: forwards;
+        -webkit-animation-duration: 0.5s;
+        -webkit-animation-name: node_out_keyframes;
+        -webkit-animation-iteration-count: 1;
+        overflow: hidden;
+    }
+
+    @-webkit-keyframes node_out_keyframes {
+        0% { max-height: 100px; }
+        100% { max-height: 0px }
+    }
+</style>
+
+<br/>
+<script type="text/ng-template" id="query.html">
+    <button hm-tap="addCondition(q,q)" class="btn add_item" type="button"><i class="icon-plus-sign"></i></button>
+    <li class="dropdown" style="list-style-type: none; display: inline-block">
+        <button class="btn dropdown-toggle add_item">( )</button>
+        <ul class="dropdown-menu">
+            <li>
+                <div hm-tap="addOrGroup(q,q)" class="menu_item" hm-tap="">add group (<b>OR</b>)</div>
+            </li>
+        </ul>
+    </li>
+    <div ng-repeat="node in q.nodes">
+        <div ng-include="'query_node.html'"></div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="query_node.html">
+    <div ng-class="{ 'node_in':node.show, 'node_out':node.hide }">
+    <ng-switch on="node.op">
+        <div ng-switch-when="$and" class="indent">
+            <button hm-tap="addCondition(q,node)" class="btn add_item" type="button"><i class="icon-plus-sign"></i></button>
+            <div ng-repeat="node in node.nodes">
+                <div ng-include="'query_node.html'"></div>
+            </div>
+        </div>
+        <div ng-switch-when="$or" class="indent or_group">
+            <button hm-tap="addCondition(q,node)" class="btn add_item" type="button"><i class="icon-plus-sign"></i></button>
+            <li class="dropdown" style="list-style-type: none; display: inline-block">
+                <button class="btn dropdown-toggle add_item">( )</button>
+                <ul class="dropdown-menu">
+                    <li>
+                        <div hm-tap="addAndGroup(q,node)" class="menu_item" hm-tap="">add group (<b>AND</b>)</div>
+                    </li>
+                </ul>
+            </li>
+            <div ng-repeat="node in node.nodes">
+                <div ng-include="'query_node.html'"></div>
+            </div>
+        </div>
+        <div ng-switch-default>
+            <div ng-include="'query_condition.html'"></div>
+        </div>
+    </ng-switch>
+    <div ng-show="$last==false" class="logic">{{ getParentOperator(q,node).description }}</div>
+    </div>
+</script>
+
+<script type="text/ng-template" id="query_condition.html">
+
+    <select ui-select2="{containerCssClass: 'row_item', dropdownCssClass: 'property_dropdown', formatResult: format, formatSelection: format, escapeMarkup:escape }" ng-change="updateProperty(q,node)" ng-model="node.prop" style="width: 150px">
+        <option></option>
+        <optgroup label="{{ q.collection.id }} properties">
+            <option ng-repeat="(schemaProperty, type) in q.collection.schema" value="{{ schemaProperty }}" data-schema-type="{{ type }}">
+                {{ schemaProperty }}
+            </option>
+        </optgroup>
+    </select>
+
+    <select ui-select2="{containerCssClass: 'op_container row_item'}" ng-change="updateProperty(q,node)" ng-model="node.op" style="width: 110px;">
+        <option ng-repeat="operator in getOperatorsByType(node.type)" value="{{ operator.name }}">
+            {{ operator.description }}
+        </option>
+    </select>
+
+    <ng-switch on="node.opType" style="margin-right: 30px">
+        <span ng-switch-when="equality">
+            <ng-switch on="node.type">
+                <span ng-switch-when="string">
+                    <input type="text" class="row_item input-std" ng-model="node.val" />
+                </span>
+                <span ng-switch-when="number">
+                    <input type="number" class="row_item input-small" ng-model="node.val" />
+                </span>
+                <span ng-switch-when="pointer">
+                    <span class="type">{{ node.val.className }}*</span> objectId <input type="text" class="row_item input-std" ng-model="node.val.objectId" />
+                </span>
+                <span ng-switch-when="file">
+                    File
+                </span>
+                <span ng-switch-when="date">
+                    <input class="row_item visible-phone visible-tablet input-std" style="text-align:center" ng-model="node.displayDate" ui-date ng-change="setUtcDate(q, node)">
+                    <input class="row_item visible-desktop" style="width:150px;" type="datetime" ng-model="node.val.iso" ng-change="setDisplayDate(q, node)">
+                </span>
+                <span ng-switch-when="boolean">
+                    <input type="checkbox" class="row_item" ng-model="val" style="margin-right: 10px" /><span ng-show="node.val">True</span><span ng-show="!node.val">False</span>
+                </span>
+                <span ng-switch-when="array">
+                    csv list <input type="text" class="row_item input-small" ng-model="node.val" />
+                </span>
+                <span ng-switch-default>
+                    ??? {{ node.val }}
+                </span>
+            </ng-switch>
+        </span>
+        <span ng-switch-when="set" style="margin-left: 20px">
+            csv list <input type="text" class="row_item input-large" ng-model="node.val" />
+        </span>
+        <span ng-switch-when="regex" style="margin-left: 20px">
+            pattern <input type="text" class="row_item input-small" ng-model="node.val" />
+            options <input type="text" class="row_item input-small" ng-model="node.options" />
+        </span>
+        <span ng-switch-when="exists" style="margin-left: 30px">
+            <input type="checkbox" class="row_item" ng-model="node.val" style="margin-right: 10px" /><span ng-show="node.val">True</span><span ng-show="!node.val">False</span>
+        </span>
+    </ng-switch>
+
+    <button hm-tap="removeCondition(q, node)" class="btn" type="button"><i class="icon-remove-sign"></i></button>
+</script>
+
+<div class="query container-fluid">
+    {{ update }}
+    <div class="row-fluid">
+        <div class="span10">
+            <select class="row_item" ng-model="q" ng-options="query as query.className for query in queries"></select>
+            <button hm-tap="executeQuery(q)" class="btn btn-green">Run</button><div style="display: inline-block; margin-left: 10px" ng-class="{ animated:true, lightSpeedOut:busy }">{{ status }}</div>
+            <span class="outputDesc">{{ outputFormat.description }}</span>
+        </div>
+        <div class="span2 narrow_col">
+            <select class="outputFormat" ng-model="outputFormat" ng-options="format as format.name for format in formats"></select>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="span10">
+            <div ng-include="'query.html'"></div>
+            <br/>
+            <div class="gridStyle" ng-grid="gridOptions"></div>
+        </div>
+        <div class="span2 narrow_col">
+            <textarea class="queryCode">{{ transformQuery(q,outputFormat) }}</textarea>
+        </div>
+    </div>
+</div>
+
+
+

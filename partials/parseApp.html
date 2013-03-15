@@ -1,0 +1,58 @@
+<br/>
+
+<div ng-show="app.hasLocalStorage()==false"><b>Please use a browser that supports local storage.</b><br/><br/></div>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div>To use the query builder, add your Parse.com app id and rest key below.</div>
+        <br/>
+        <div><i>This private information will only be saved in your local browser and when querying Parse.com.  It will never be transmitted anywhere else and will never be accessible by anyone but you.</i></div>
+    </div>
+</div>
+<br/><br/>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span3">Application ID</div>
+        <div class="span5">
+            <input autofocus="autofocus" type="text" ng-model="app_id" class="field" required />
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="span3">REST API Key</div>
+        <div class="span5">
+            <input type="text" ng-model="api_key" class="field" required/>
+        </div>
+    </div>
+    <div class="row-fluid">
+        <div class="span3">Schema</div>
+        <div class="span9">
+            <textarea style="width: 90%;" ng-model="schema" class="field" required />
+            <div style="font-size: 10px">To get schema:
+                <ol>
+                    <li>Login to parse.com, go to the Data Browser for your app</li>
+                    <li>Right click in the browser and select "View Page Source"</li>
+                    <li>Search for "var collectionsJson", copy the JSON value for this variable and paste into schema field</li>
+                </ol>
+            </div>
+        </div>
+    </div>
+    <br/>
+    <div class="row-fluid">
+        <div class="span12">
+            <button hm-tap="save()" ng-disabled="disableSave()" class="btn itm_r input-small">Save</button><button hm-tap="remove()" class="btn itm_r input-small">Remove</button>
+            <span style="margin-left: 10px;">{{ status }}</span>
+        </div>
+    </div>
+    <br/><br/>
+    <div class="row-fluid" style="color: #A0A0A0; font-size: 10px">
+        <div class="span3">Currently Saved:</div>
+        <div class="row-fluid">
+            <div class="span12">{{ app.getAppKey() }}</div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">{{ app.getRestKey() }}</div>
+        </div>
+        <div class="row-fluid">
+            <div class="span12">{{ app.getSchemaString() }}</div>
+        </div>
+    </div>
+</div>

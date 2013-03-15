@@ -1,0 +1,29 @@
+<br/>
+<h3>Welcome to Sports Side MMA</h3>
+
+<h3>Fighters, Events, Rankings</h3>
+<br/>
+{{ now }}
+<br/><br/>
+<input ui-select2="version4" ng-model="version4model" style="width:200px" />
+<br/>
+<div>Total bouts: {{ boutTotalCount }}</div>
+<div>Bouts no eventId: {{ boutTotalCount }}</div>
+<br/>
+<div>Total events: {{ eventCount }}</div>
+<div>Events ready: {{ opCount }}</div>
+<div>Events processed: {{ eventsProcessed }}</div>
+<div>Bouts processed: {{ boutsProcessed }}</div>
+<br/><br/>
+<button ng-click="testSomething()"
+        class="btn"
+        type="button">Test Something</button>
+<br/><br/>
+<button ng-click="fixEventId()" class="btn" type="button">Fix Event Id</button>
+<button ng-click="uploadImage()" class="btn" type="button">Upload Image</button>
+<input type="file" name ="fileInput" id="fileInput">Upload</input>
+<div>{{ recResult }}</div>
+
+
+
+

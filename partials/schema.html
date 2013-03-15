@@ -1,0 +1,18 @@
+<br/>
+<div class="container-fluid">
+    <div class="row-fluid">
+        <div class="span6">
+            <accordion close-others="oneAtATime">
+                <accordion-group ng-repeat="collection in app.collections">
+                    <accordion-heading><span ng-click="selectCollection(collection)">{{ collection.id }} ({{ collection.count }})</span></accordion-heading>
+                    <div hm-tap="test()" ng-repeat="(property, type) in collection.schema">
+                        <span style="display: inline-block; overflow:hidden; width: 140px; font-weight:bold">{{ property }}</span>
+                        <span style="margin-left: 5px">{{ type }}</span>
+                    </div>
+                </accordion-group>
+            </accordion>
+        </div>
+    </div>
+</div>
+
+

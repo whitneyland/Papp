@@ -1,0 +1,30 @@
+
+Guess at Parse.com query grammar
+-------------------------------------------
+EXPRESSION = { NODE+ }
+NODE = CONDITION* | OR_GROUP*
+OR_GROUP = { $or : [CONDITION* | OR_GROUP*] }
+CONDITION = { PROPERTY : VALUE }
+VALUE = SCALAR | TYPE | ARRAY | { SPECIAL_KEY* } | QUERY
+TYPE: POINTER | FILE | DATE
+POINTER = { __type : "Pointer", className: STRING, objectId: STRING }
+SPECIAL_KEY = EQUALITY | SET | REGEX | EXIST
+REGEX = { $regex : STRING, $options : STRING }  // Grammar accepts multiple Regex per value but only one works
+EQUALITY = $gt | $gte | $lt | $lte | $ne : SCALAR
+SET = $in | $nin | $all : ARRAY
+EXIST = $exists : BOOL
+QUERY = $select : { "query" : EXPRESSION }
+
+
+An alternate normalized grammar, more general, easier to edit and display
+-------------------------------------------
+EXPRESSION = { NODE, className:STRING, queryDescription: STRING }
+NODE = { INFO CONDITION | NODE* }
+CONDITION = op : OPERATOR, val: VALUE [,prop: PROPERTY] [,options: STRING,]
+VALUE = SCALAR | TYPE | ARRAY | QUERY
+TYPE = POINTER | DATE | FILE
+POINTER = { type:TYPENAME, className:CLASSNAME objectId:OBJECTID }
+INFO = type: TYPENAME
+
+
+

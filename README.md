@@ -1,4 +1,7 @@
-Papp
-====
+# [Parse Tools](http://parse.site44.com)
 
-AngularJS resource for Parse.com, query builder for Parse.com REST api
+## Features
+
+* Query builder
+* Schema browser
+* Data browser
