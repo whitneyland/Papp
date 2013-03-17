@@ -1,15 +1,6 @@
 "use strict";
 
 function queryCtrl($q, $scope, $http, App, Parse, $timeout, $location) {
-    var c = { s : "foo"};
-    var b = "foo";
-
-    foo();
-
-    function foo() {
-        c.s += " bar";
-        b += " bar";
-    }
 
     $scope.queries = [];
 
@@ -45,8 +36,9 @@ function queryCtrl($q, $scope, $http, App, Parse, $timeout, $location) {
         { name: "REST", description: "", transform: restTransform },
         { name: "Javascript", description: "Parse Javascript SDK", transform: jsTransform },
         { name: "Objective-C", description: "Parse iOS SDK", transform: iOSTransform },
-        { name: "PTools", description: "Normalized JSON query syntax", transform: normalForm }
+        { name: "Normalized", description: "Normalized JSON query syntax", transform: normalForm }
     ];
+
     $scope.outputFormat = $scope.formats[0];
 
     $scope.executeQuery = function(query) {
@@ -60,18 +52,25 @@ function queryCtrl($q, $scope, $http, App, Parse, $timeout, $location) {
 
         var url = getBaseUrl(query);
         var expression = restTransformExpression(query);
-        var params = { where : expression };
-        $http.get(url, {params: params,headers:App.getHeaders()}).
+        var params = { where : expression, limit:25 };
+        var countParams = { where : expression, limit:0, count:1 };
+
+        $http.get(url, {params: countParams, headers:App.getHeaders()}).
+        then(function (data) {
+            $scope.status = "found " + data.data.count;
+            $http.get(url, {params: params,headers:App.getHeaders()}).
             then(function (data) {
                 $scope.result = data.data.results;
-                $scope.status = "found " + $scope.result.length;
                 $scope.busy = false;
                 setColumns(query, $scope.gridOptions);
-
-            },function(error) {
-                $scope.status = "error status: " + error.status + " " + error.data.error;
-                $scope.busy = false;
+            },
+            function(error) {
+                throw error;
             });
+        },function(error) {
+            $scope.status = "error status: " + error.status + " " + error.data.error;
+            $scope.busy = false;
+        });
     };
 
     $scope.getOperatorsByType = function(type) {
@@ -130,6 +129,7 @@ function queryCtrl($q, $scope, $http, App, Parse, $timeout, $location) {
         node.displayDate = new Date(Date.parse(node.val.iso));
     };
 
+    // select2 drop down item template
     $scope.format = function(item) {
         if (!item.id) {
             return item.text; // optgroup
@@ -139,6 +139,7 @@ function queryCtrl($q, $scope, $http, App, Parse, $timeout, $location) {
         }
     };
 
+    // select2 drop down item template
     $scope.escape = function(item) {
         return item;
     };
@@ -375,26 +376,37 @@ function queryCtrl($q, $scope, $http, App, Parse, $timeout, $location) {
                 var count = 0;
                 for (var propertyName in specialKeys) {
                     if (query.op==="$or") {
-                        s += "{";
-                    }
-                    s += qt(propertyName);
-                    s += ":{";
-                    for (var i=0; i<specialKeys[propertyName].length; i++) {
-                        var specialNode = specialKeys[propertyName][i];
-                        s += qt(specialNode.op);
-                        restTransformValue(specialNode);
-                        if (i < specialKeys[propertyName].length-1) {
-                            s += ",";
+                        for (var i=0; i<specialKeys[propertyName].length; i++) {
+                            s += "{";
+                            s += qt(propertyName);
+                            s += ":{";
+
+                            var specialNode = specialKeys[propertyName][i];
+                            s += qt(specialNode.op);
+                            restTransformValue(specialNode);
+                            s += "}}";
+                            if (i < specialKeys[propertyName].length-1) {
+                                s += ",";
+                            }
                         }
                     }
-                    s += "}";
+                    else {
+                        s += qt(propertyName);
+                        s += ":{";
+                        for (var i=0; i<specialKeys[propertyName].length; i++) {
+                            var specialNode = specialKeys[propertyName][i];
+                            s += qt(specialNode.op);
+                            restTransformValue(specialNode);
+                            if (i < specialKeys[propertyName].length-1) {
+                                s += ",";
+                            }
+                        }
+                        s += "}";
+                    }
                     if (count < Object.keys(specialKeys).length-1) {
                         s += ",";
                     }
                     count++;
-                    if (query.op==="$or") {
-                        s += "}";
-                    }
                 }
             }
 
@@ -627,31 +639,48 @@ function queryCtrl($q, $scope, $http, App, Parse, $timeout, $location) {
     }
 
     function setColumns(query) {
-        var i = 0;
         var cols = [];
-        for (var property in query.collection.schema) {
+        for (var propertyName in query.collection.schema) {
             var col = {};
-            col.field = property;
-            col.displayName = property;
+            col.field = propertyName;
+            col.displayName = propertyName;
             col.minWidth = 100;
             col.width = 100;
+
+            var prop = getProperty(query.collection, propertyName);
+            if (prop.type==="date") {
+                col.cellTemplate = "<div class='ngCellText'>{{ COL_FIELD.iso | date:'MM/dd/yyyy' }}</div>";
+            }
+            else if (prop.type==="array") {
+                col.cellTemplate = "<div class='ngCellText'>array ({{ COL_FIELD.length }})</div>";
+            }
+            else if (prop.type==="pointer") {
+                col.cellTemplate = "<div class='ngCellText'>" + prop.subType + "* {{ COL_FIELD.objectId }}</div>";
+                col.width = 200;
+            }
+            else if (prop.type==="file") {
+                col.cellTemplate = "<div class='ngCellText'>{{ COL_FIELD.url.substring(97) }}</div>";
+                col.width = 200;
+            }
+            else if (prop.type==="number") {
+                col.width = 80;
+            }
+            else if (prop.type==="boolean") {
+                col.width = 50;
+            }
             cols.push(col);
-            //i++;
-            if (i > 4)
-                break;
         }
         $scope.columnDefs = cols;
     }
 
     $scope.columnDefs = [
-        { field: 'firstName', displayName: 'First' },
-        { field: 'lastName', displayName: 'Last' },
-        { field: 'other', displayName: 'Other' }
+        { field: 'columns', displayName: 'Results' }
     ];
 
     $scope.gridOptions = {
-        data: 'result',
-        columnDefs : 'columnDefs'
+        data:'result',
+        columnDefs: 'columnDefs',
+        enableColumnResize: true
     }
 }
 

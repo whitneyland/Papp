@@ -1,10 +1,41 @@
 "use strict";
 //
-// For development only, queries for testing and debugging
+// For development only, queries for testing and debugging.
+// Set any query to $scope.q and it will be used on startup
 //
 function useTestQuery($scope) {
 
-    $scope.q =  {
+
+    $scope.q1 = {
+        "description":"Big Query",
+        "className":"Fighters",
+        "op":"$and",
+        "nodes":[
+            {"op":"$or",
+            "nodes":[
+                {"prop":"wins","val":10,"op":"$gte"},
+                {"prop":"division","val":"'Lightweight', 'Middleweight', 'Heavyweight'","op":"$in"},
+                {"op":"$and","nodes":[
+                    {"prop":"lastName","op":"$regex","val":"^Jones","show":false},
+                    {"prop":"birthDate","op":"$e","val":{"__type":"Date","iso":"2013-03-17T00:39:07.113Z"},
+                    "show":false}]
+                }]},
+            {"prop":"campObjectId","val":{"className":"Camps","objectId":"wlACM6pMCv","__type":"Pointer"},"op":"$ne"},
+            {"prop":"pw1","val":true,"op":"$e"}
+        ]};
+
+    $scope.q1 = {
+        "className":"Fighters",
+        "op":"$and",
+        "nodes":[
+            {"op":"$or","nodes":[
+                {"prop":"losses","op":"$gte","val":5,"show":false},
+                {"prop":"losses","op":"$lt","val":2,"show":false}
+            ]}
+        ]
+    };
+
+    $scope.q1 =  {
         description: "Find all wins",
         className:"Fighters",
         op:"$and",
@@ -13,7 +44,7 @@ function useTestQuery($scope) {
         ]
     }
 
-    $scope.q2 =  {
+    $scope.q1 =  {
         description: "Find all wins",
         className:"Fighters",
         op:"$and",

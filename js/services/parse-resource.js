@@ -1,3 +1,5 @@
+"use strict";
+
 angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '$http', function (PARSE_CONFIG, $http) {
 
     function parseResourceFactory(className) {
@@ -10,8 +12,9 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
         var fileUrl = config.BASE_URL + "files/";
         var funcUrl = config.BASE_URL + "functions";
         var defaultParams = config.defaultParams;
-        if (Object.keys(defaultParams).length == 0)
+        if (Object.keys(defaultParams).length == 0) {
             defaultParams = null;       // Prevent angular from adding ? on a url with no parameters
+        }
         var defaultHeaders = config.defaultHeaders;
 
         // post processing for REST operations
@@ -19,10 +22,12 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
             return httpPromise.then(function (response) {
                 var result;
                 if (response.data.hasOwnProperty("results")) {      // Transform array of results
-                    if (operation == "query")
+                    if (operation == "query") {
                         result = Resource.resourceArray(response.data.results);
-                    else if (operation == "queryCount")
+                    }
+                    else if (operation == "queryCount") {
                         result = response.data.count;
+                    }
                 } else if (operation=="post") {
                     $resource.objectId = response.data.objectId;    // Set new id on calling resource
                     result = new Resource(response.data);
@@ -34,8 +39,9 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
                 }
                 return result;
             }, function (response) {
-                if (response.data!=undefined && response.data.hasOwnProperty("error") && response.data.hasOwnProperty("code"))
+                if (response.data!=undefined && response.data.hasOwnProperty("error") && response.data.hasOwnProperty("code")) {
                     console.log("(" + operation + ", Parse " + response.data.code + ") " + response.data.error);
+                }
                 throw response;
             });
         };
@@ -49,8 +55,9 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
 
         // Basic REST operations
         Resource.get = function (id, queryParams) {
-            if (id==undefined || id==null)
+            if (id==undefined || id==null) {
                 throw "invalid id for get"
+            }
             var params = angular.isObject(queryParams)&&!angular.equals(queryParams,{}) ? queryParams : {};
             var httpPromise = $http.get(dataUrl + '/' + id, {params:angular.extend({}, defaultParams, params),headers:defaultHeaders});
             return promiseThen(httpPromise, "get");
@@ -86,9 +93,9 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
 
         // Create Parse pointer from an id, object, or array of objects
         Resource.pointer = function (object) {
-            if (object == undefined || object == null)
+            if (object == undefined || object == null) {
                 throw "pointer must be defined";
-
+            }
             if (Array.isArray(object)) {
                 var p = [];
                 object.forEach(function(item) {
@@ -100,10 +107,12 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
                 var p = {};
                 p.__type = "Pointer";
                 p.className = className;
-                if (object.hasOwnProperty("objectId"))
+                if (object.hasOwnProperty("objectId")) {
                     p.objectId = object.objectId;   // pointer from object
-                else
+                }
+                else {
                     p.objectId = object;            // pointer from id
+                }
                 return p;
             }
         }
@@ -115,17 +124,19 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
 
         Resource.resourceArray = function(data) {
             result = [];
-
-            if (data == undefined)
+            if (data == undefined) {
                 return result;
-
+            }
             for (var i = 0; i < data.length; i++) {
-                if (data[i] == null)
+                if (data[i] == null) {
                     continue;
-                if (data[i].hasOwnProperty("__type"))
+                }
+                if (data[i].hasOwnProperty("__type")) {
                     delete data[i].__type;
-                if (data[i].hasOwnProperty("className"))
+                }
+                if (data[i].hasOwnProperty("className")) {
                     delete data[i].className;
+                }
                 result.push(new Resource(data[i]));
             }
             return result;
@@ -135,8 +146,9 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
             var data = {};
             data[property] = {};
             data[property].__op = operation;
-            if (items != undefined)
+            if (items != undefined) {
                 data[property].objects = items;
+            }
             return data;
         }
 
@@ -158,8 +170,9 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
         // public instance methods
         //---------------------------------------------------------------
         Object.defineProperty(Resource.prototype, "$id", {get : function() {
-            if (this.hasOwnProperty("objectId"))
+            if (this.hasOwnProperty("objectId")) {
                 return this.objectId;
+            }
             else
                 return null;
         }, enumerable : true});
@@ -202,10 +215,12 @@ angular.module('parseResource', []).factory('$parseResource', ['PARSE_CONFIG', '
 
         // Get a parse date/time property as a moment.js instance
         Resource.prototype.$getMoment = function(dateProperty) {
-            if (this.hasOwnProperty(dateProperty))
+            if (this.hasOwnProperty(dateProperty)) {
                 return new moment(this[dateProperty].iso);
-            else
+            }
+            else {
                 return null;
+            }
         };
 
         // Get a parse date/time property as a Javascript Date instance

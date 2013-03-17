@@ -39,7 +39,15 @@
     <div class="row-fluid">
         <div class="span12">
             <button hm-tap="save()" ng-disabled="disableSave()" class="btn itm_r input-small">Save</button><button hm-tap="remove()" class="btn itm_r input-small">Remove</button>
-            <span style="margin-left: 10px;">{{ status }}</span>
+            <div style="margin-top: 10px; margin-left: 10px;">
+                <div ng-show="statusReady===true">
+                    <div><b>Working!</b><span style="margin-left: 10px">Found {{ statusCount }} items in first collection {{ statusClass }}.</span></div>
+                    <div>Now try a <a href='#/Query'>Query</a>.</div>
+                </div>
+                <div ng-show="statusReady===false">
+                    <div><b>Error:</b> {{ statusError }}</div>
+                </div>
+            </div>
         </div>
     </div>
     <br/><br/>

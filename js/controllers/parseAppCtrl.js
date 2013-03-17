@@ -5,7 +5,10 @@ function parseAppCtrl($scope, $route, App, $location) {
     $scope.app_id = App.getAppKey();
     $scope.api_key = App.getRestKey();
     $scope.schema = App.getSchemaString();
-    $scope.status = "";
+    $scope.statusReady = "";
+    $scope.statusCount = "";
+    $scope.statusClass = "";
+    $scope.statusError = "";
 
     $scope.save = function() {
         var s = $scope.schema.trim();
@@ -27,11 +30,14 @@ function parseAppCtrl($scope, $route, App, $location) {
         localStorage.parseAppKey = $scope.app_id.trim();
         localStorage.parseRestKey = $scope.api_key.trim();
 
-        App.getAppStatus().
+        App.isAppReady().
         then(function (status) {
-            $scope.status = status;
-        },function(error) {
-            $scope.error = status;
+            $scope.statusReady = status.ready;
+            $scope.statusCount = status.count;
+            $scope.statusClass = status.class;
+        },function(status) {
+            $scope.statusReady = status.ready;
+            $scope.statusError = status.error;
         });
     };
 
