@@ -229,8 +229,10 @@
                     File
                 </span>
                 <span ng-switch-when="date">
-                    <input class="row_item visible-desktop input-std" style="text-align:center" ng-model="node.displayDate" ui-date ng-change="setUtcDate(q, node)">
-                    <input class="row_item visible-phone visible-tablet" style="width:150px;" type="datetime" ng-model="node.val.iso" ng-change="setDisplayDate(q, node)">
+                    <input ng-model="node.displayDate" ng-change="setUtcDate(q, node)" class="row_item input-std" ui-date style="text-align:center">
+                    <!-- This works on iOS, conditionally enable when the right detection is in place
+                    <input ng-model="node.val.iso" ng-change="setDisplayDate(q, node)" class="row_item hidden-phone hidden-tablet" type="datetime" style="width:150px;">
+                    -->
                 </span>
                 <span ng-switch-when="boolean">
                     <input type="checkbox" class="row_item" ng-model="val" style="margin-right: 10px" /><span ng-show="node.val">True</span><span ng-show="!node.val">False</span>

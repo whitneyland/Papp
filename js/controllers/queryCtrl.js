@@ -437,6 +437,9 @@ function queryCtrl($q, $scope, $http, App, Parse, $timeout, $location) {
                 }
                 s += "]";
             }
+            else if (node.opType==="exists") {
+                s += Boolean(node.val);
+            }
             else {
                 switch (node.type) {
                     case "string":
@@ -644,7 +647,7 @@ function queryCtrl($q, $scope, $http, App, Parse, $timeout, $location) {
             var col = {};
             col.field = propertyName;
             col.displayName = propertyName;
-            col.minWidth = 100;
+            //col.minWidth = 100;
             col.width = 100;
 
             var prop = getProperty(query.collection, propertyName);
