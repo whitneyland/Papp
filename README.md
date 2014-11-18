@@ -1,9 +1,9 @@
 ## pApp
 AngularJS resource for Parse.com, query builder for Parse.com REST api
 
-[2 min video demo]:https://www.youtube.com/watch?v=fZ3_NGLKE2U
+[2 min video demo](https://www.youtube.com/watch?v=fZ3_NGLKE2U)
 
-[online demo]:http://parse.whitneyland.com)
+[online demo](http://parse.whitneyland.com)
 
 ## Features
 
